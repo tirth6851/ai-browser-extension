@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Browser Action</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <span class="logo">⚡</span>
+    <span class="title">AI Browser Action</span>
+    <label class="toggle">
+      <input type="checkbox" id="enabled-toggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="status-bar" id="status-bar">
+    <span class="dot active" id="status-dot"></span>
+    <span id="status-text">Watching claude.ai</span>
+  </div>
+
+  <div class="section-label">Recent Actions</div>
+
+  <div id="history-list" class="history-list">
+    <div class="empty-state">No actions yet.<br>Paste the system prompt into Claude and start building.</div>
+  </div>
+
+  <div class="footer">
+    <button id="copy-prompt-btn" class="btn-primary">Copy System Prompt</button>
+    <button id="clear-btn" class="btn-ghost">Clear History</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
