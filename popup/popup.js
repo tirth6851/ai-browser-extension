@@ -21,7 +21,7 @@ Vercel:
 RULES:
 1. Only output action tags when you actually need to perform the action (not just describe it)
 2. Always explain what you're about to do before the action tag
-3. After an action, continue with the next steps assuming it succeeded (the user will see the result)
+3. After an action, continue with the next steps assuming it succeeded
 4. For destructive actions (dropping tables, deleting), warn the user first
 5. You can chain multiple actions in one response if needed
 
@@ -32,9 +32,58 @@ Example:
 
 Once that's created, let's set up the auth flow..."`;
 
-// Load history and render
+// --- Tab switching ---
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-actions').style.display = tab.dataset.tab === 'actions' ? '' : 'none';
+    document.getElementById('tab-settings').style.display = tab.dataset.tab === 'settings' ? '' : 'none';
+  });
+});
+
+// --- Show/hide API key ---
+document.querySelectorAll('.btn-show').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.getElementById(btn.dataset.target);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      input.type = 'password';
+      btn.textContent = 'Show';
+    }
+  });
+});
+
+// --- Save API keys ---
+document.getElementById('save-keys-btn').addEventListener('click', async () => {
+  const keys = {
+    apiKeyAnthropic: document.getElementById('key-anthropic').value.trim(),
+    apiKeyOpenAI: document.getElementById('key-openai').value.trim(),
+    apiKeyGoogle: document.getElementById('key-google').value.trim()
+  };
+  await chrome.storage.local.set(keys);
+  const btn = document.getElementById('save-keys-btn');
+  btn.textContent = 'Saved!';
+  setTimeout(() => { btn.textContent = 'Save Keys'; }, 2000);
+});
+
+// --- Clear API keys ---
+document.getElementById('clear-keys-btn').addEventListener('click', async () => {
+  await chrome.storage.local.remove(['apiKeyAnthropic', 'apiKeyOpenAI', 'apiKeyGoogle']);
+  document.getElementById('key-anthropic').value = '';
+  document.getElementById('key-openai').value = '';
+  document.getElementById('key-google').value = '';
+});
+
+// --- Actions tab ---
 async function init() {
-  const data = await chrome.storage.local.get(['actionHistory', 'extensionEnabled']);
+  const data = await chrome.storage.local.get([
+    'actionHistory', 'extensionEnabled',
+    'apiKeyAnthropic', 'apiKeyOpenAI', 'apiKeyGoogle'
+  ]);
+
   renderHistory(data.actionHistory || []);
 
   const toggle = document.getElementById('enabled-toggle');
@@ -45,18 +94,21 @@ async function init() {
     chrome.storage.local.set({ extensionEnabled: toggle.checked });
     updateStatusBar(toggle.checked);
   });
+
+  // Pre-fill saved keys
+  if (data.apiKeyAnthropic) document.getElementById('key-anthropic').value = data.apiKeyAnthropic;
+  if (data.apiKeyOpenAI) document.getElementById('key-openai').value = data.apiKeyOpenAI;
+  if (data.apiKeyGoogle) document.getElementById('key-google').value = data.apiKeyGoogle;
 }
 
 function renderHistory(history) {
   const list = document.getElementById('history-list');
-
   if (!history.length) {
-    list.innerHTML = '<div class="empty-state">No actions yet.<br>Paste the system prompt into Claude and start building.</div>';
+    list.innerHTML = '<div class="empty-state">No actions yet.<br>Paste the system prompt into any AI chat and start building.</div>';
     return;
   }
-
   list.innerHTML = [...history].reverse().map(item => {
-    const icon = statusIcon(item.status);
+    const icon = { success: '✓', failed: '✗', cancelled: '○', executing: '⟳', detected: '⚡' }[item.status] || '·';
     const action = item.platform && item.method ? `${item.platform}.${item.method}` : '—';
     const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
     return `
@@ -72,27 +124,11 @@ function renderHistory(history) {
   }).join('');
 }
 
-function statusIcon(status) {
-  const icons = {
-    success: '✓',
-    failed: '✗',
-    cancelled: '○',
-    executing: '⟳',
-    detected: '⚡'
-  };
-  return icons[status] || '·';
-}
-
 function updateStatusBar(enabled) {
   const dot = document.getElementById('status-dot');
   const text = document.getElementById('status-text');
-  if (enabled) {
-    dot.className = 'dot active';
-    text.textContent = 'Watching claude.ai';
-  } else {
-    dot.className = 'dot inactive';
-    text.textContent = 'Extension paused';
-  }
+  dot.className = enabled ? 'dot active' : 'dot inactive';
+  text.textContent = enabled ? 'Watching AI chats' : 'Extension paused';
 }
 
 document.getElementById('copy-prompt-btn').addEventListener('click', async () => {

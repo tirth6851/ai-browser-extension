@@ -16,20 +16,72 @@
     </label>
   </div>
 
-  <div class="status-bar" id="status-bar">
-    <span class="dot active" id="status-dot"></span>
-    <span id="status-text">Watching claude.ai</span>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="actions">Actions</button>
+    <button class="tab" data-tab="settings">Settings</button>
   </div>
 
-  <div class="section-label">Recent Actions</div>
+  <!-- Actions Tab -->
+  <div id="tab-actions">
+    <div class="status-bar" id="status-bar">
+      <span class="dot active" id="status-dot"></span>
+      <span id="status-text">Watching AI chats</span>
+    </div>
 
-  <div id="history-list" class="history-list">
-    <div class="empty-state">No actions yet.<br>Paste the system prompt into Claude and start building.</div>
+    <div class="platform-pills">
+      <span class="pill active">Claude</span>
+      <span class="pill active">ChatGPT</span>
+      <span class="pill active">Gemini</span>
+    </div>
+
+    <div class="section-label">Recent Actions</div>
+
+    <div id="history-list" class="history-list">
+      <div class="empty-state">No actions yet.<br>Paste the system prompt into any AI chat and start building.</div>
+    </div>
+
+    <div class="footer">
+      <button id="copy-prompt-btn" class="btn-primary">Copy System Prompt</button>
+      <button id="clear-btn" class="btn-ghost">Clear</button>
+    </div>
   </div>
 
-  <div class="footer">
-    <button id="copy-prompt-btn" class="btn-primary">Copy System Prompt</button>
-    <button id="clear-btn" class="btn-ghost">Clear History</button>
+  <!-- Settings Tab -->
+  <div id="tab-settings" style="display:none;">
+    <div class="settings-body">
+      <div class="settings-group">
+        <div class="settings-group-label">Anthropic (Claude)</div>
+        <div class="input-row">
+          <input type="password" id="key-anthropic" class="api-input" placeholder="sk-ant-..." autocomplete="off">
+          <button class="btn-show" data-target="key-anthropic">Show</button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-label">OpenAI (ChatGPT)</div>
+        <div class="input-row">
+          <input type="password" id="key-openai" class="api-input" placeholder="sk-..." autocomplete="off">
+          <button class="btn-show" data-target="key-openai">Show</button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-label">Google (Gemini)</div>
+        <div class="input-row">
+          <input type="password" id="key-google" class="api-input" placeholder="AIza..." autocomplete="off">
+          <button class="btn-show" data-target="key-google">Show</button>
+        </div>
+      </div>
+
+      <div class="settings-note">
+        Keys are stored locally in your browser and never sent anywhere except the AI provider's API.
+      </div>
+    </div>
+
+    <div class="footer">
+      <button id="save-keys-btn" class="btn-primary">Save Keys</button>
+      <button id="clear-keys-btn" class="btn-ghost">Clear All</button>
+    </div>
   </div>
 
   <script src="popup.js"></script>

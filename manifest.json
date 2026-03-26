@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AI Browser Action",
-  "version": "0.1.0",
-  "description": "Lets AI chat tools take real actions in your browser — create Supabase tables, read Vercel logs, and more.",
+  "version": "0.2.0",
+  "description": "Lets AI chat tools take real actions in your browser — create Supabase tables, manage API keys, read Vercel logs, and more.",
   "permissions": [
     "tabs",
     "activeTab",
@@ -11,6 +11,9 @@
   ],
   "host_permissions": [
     "https://claude.ai/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://gemini.google.com/*",
     "https://supabase.com/*",
     "https://app.supabase.com/*",
     "https://vercel.com/*"
@@ -20,7 +23,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://claude.ai/*"],
+      "matches": [
+        "https://claude.ai/*",
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*"
+      ],
       "js": ["content/chat-watcher.js"],
       "run_at": "document_idle"
     }
